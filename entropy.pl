@@ -33,3 +33,8 @@ entropy(G, E) :-
   maplist({L}/[C, R] >> (R is C / L), Cs, Ps),
   foldl([P, A, R] >> (R is A + (P * log(P))), Ps, 0, NE),
   E is -NE.
+
+sortentropies(RSEs) :-
+  findall(E-G, (words(G), entropy(G, E)), Es),
+  keysort(Es, SEs),
+  reverse(SEs, RSEs).

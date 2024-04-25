@@ -34,7 +34,15 @@ entropy(G, E) :-
   foldl([P, A, R] >> (R is A + (P * log(P))), Ps, 0, NE),
   E is -NE.
 
-sortentropies(RSEs) :-
-  findall(E-G, (words(G), entropy(G, E)), Es),
-  keysort(Es, SEs),
-  reverse(SEs, RSEs).
+possible([], [], [], _).
+possible([G|Gs], [i|Rs], [W|Ws], FW) :- G \= W, \+ member(G, FW), possible(Gs, Rs, Ws, FW), !.
+possible([G|Gs], [p|Rs], [W|Ws], FW) :- G \= W, member(G, FW), possible(Gs, Rs, Ws, FW).
+possible([G|Gs], [f|Rs], [G|Ws], FW) :- possible(Gs, Rs, Ws, FW).
+
+all_possible(Gs, Ks, W) :-
+  maplist({W}/[G, K] >> (atom_chars(G, Gc), atom_chars(K, Kc), possible(Gc, Kc, W, W)), Gs, Ks).
+
+max_entropies_given(Gs, Ks, ME) :-
+  findall(E-W, (words(W), atom_chars(W, Wc), all_possible(Gs, Ks, Wc), entropy(W, E)), Es),
+  keysort(Es, SEs), % this could be improved to O(n) instead of O(nlogn) but it doesn't really matter
+  reverse(SEs, [_-ME|_]).

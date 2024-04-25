@@ -1,0 +1,20 @@
+{
+  "name": "duotrigordle-solver",
+  "version": "1.0.0",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "start": "ts-node client.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "puppeteer": "^22.7.0",
+    "swipl": "^1.0.6",
+    "ts-node": "^10.9.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.7"
+  }
+}

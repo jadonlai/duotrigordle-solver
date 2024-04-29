@@ -1,0 +1,15 @@
+Best results for 4 words:
+    20 unique letters
+    DECAF
+    BLING
+    MORPH
+    TUSKY
+
+
+Best results for 5 words:
+    22 unique letters
+    DECAF
+    DEBAG
+    MILKO
+    WURST
+    PHYNX

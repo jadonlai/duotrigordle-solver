@@ -1,0 +1,1 @@
+g++ -std=c++2a -O2 letter_maximization.cpp -o letter_maximization.exe

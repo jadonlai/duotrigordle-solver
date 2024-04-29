@@ -1,0 +1,7 @@
+Early breaking:
+    If there are 'N' more words to add to the list, then
+      (5 * N) is the theoretical maximum number of additional letters 
+      you can increase your current score by.
+      If the current best running maximum is greater than or equal to
+      current-score + (5 * N), then there is no reason to continue exploring, 
+      and you should break early from that loop

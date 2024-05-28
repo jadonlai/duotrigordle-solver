@@ -12,11 +12,16 @@ const PRACTICE_LINK_SELECTOR =
 const MAIN_SELECTOR = "._main_kv0wd_1";
 const BOARDS_SELECTOR = "div._board_1277w_1";
 const CELL_SELECTOR = "div._cell_1277w_56";
-const STARTER_WORDS = ["ABENG", "APTLY", "CHIKO", "WAQFS", "DRUMS"];
+const STARTER_WORDS = ["TARES"];
 
 async function gather_results(page: Page): Promise<string[]> {
   const boards = await page.$$(BOARDS_SELECTOR);
   const resultsPromises = boards.map(async (board) => {
+    const boardCls = await board.evaluate((el) => el.className);
+    if (boardCls.includes("dimmed")) {
+      return "fffff";
+    }
+
     const cells = await board.$$eval(CELL_SELECTOR, (els) =>
       els.map((el) => el.className),
     );
@@ -73,12 +78,13 @@ function solvedAmount(board: string[]): number {
   swipl.call("['../entropy/entropy']");
 
   while (true) {
-    const first_board = all_results.reduce((best_board, board) =>
-      solvedAmount(board) > solvedAmount(best_board) &&
-      solvedAmount(board) !== 5
-        ? board
-        : best_board,
-    );
+    const first_board = all_results
+      .filter((board) => solvedAmount(board) !== 5)
+      .reduce((best_board, board) =>
+        solvedAmount(board) > solvedAmount(best_board) ? board : best_board,
+      );
+
+    console.log(solvedAmount(first_board));
 
     const query = serialize(
       compound("max_entropies_given", [
@@ -98,6 +104,8 @@ function solvedAmount(board: string[]): number {
 
     await page.type(MAIN_SELECTOR, ret.ME);
     await page.keyboard.press("Enter");
+
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
     guesses.push(ret.ME);
 

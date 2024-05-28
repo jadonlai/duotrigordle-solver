@@ -50,7 +50,7 @@ function solvedAmount(board: string[]): number {
   await page.type(MAIN_SELECTOR, 'TARES');
   await page.keyboard.press('Enter');
 
-  swipl.call('[entropy]');
+  swipl.call("['../entropy/entropy']");
 
   const guesses = ['TARES'];
   const all_results = (await gather_results(page)).map(r => [r]);

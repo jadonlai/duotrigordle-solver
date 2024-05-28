@@ -1,5 +1,5 @@
-CXX := g++
-CXXARGS := -O2 -std=c++20
+CXX ?= g++
+CXXARGS ?= -O2 -std=c++20
 
 letter_maximization: letter_maximization.cpp
 	$(CXX) $(CXXARGS) -o $@ $<

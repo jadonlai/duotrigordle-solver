@@ -11,6 +11,7 @@ const PRACTICE_LINK_SELECTOR = 'div._tabWrapper_ag3fe_24 > div._tabContainer_ag3
 const MAIN_SELECTOR = '._main_kv0wd_1';
 const BOARDS_SELECTOR = 'div._board_1277w_1';
 const CELL_SELECTOR = 'div._cell_1277w_56';
+const STARTER_WORDS = ['ABENG', 'APTLY', 'CHIKO', 'WAQFS', 'DRUMS'];
 
 async function gather_results(page: Page): Promise<string[]> {
   const boards = await page.$$(BOARDS_SELECTOR);
@@ -47,13 +48,19 @@ function solvedAmount(board: string[]): number {
   await new Promise(resolve => setTimeout(resolve, 150))
   await page.click(PRACTICE_LINK_SELECTOR);
 
-  await page.type(MAIN_SELECTOR, 'TARES');
-  await page.keyboard.press('Enter');
+  const guesses: string[] = [];
+  const all_results: string[][] = Array(32).fill(null).map(_ => []);
+  for (const starter of STARTER_WORDS) {
+    await page.type(MAIN_SELECTOR, starter);
+    await page.keyboard.press('Enter');
+
+    guesses.push(starter)
+    const results = await gather_results(page);
+    all_results.forEach((acc, i) => acc.push(results[i]));
+  }
 
   swipl.call("['../entropy/entropy']");
 
-  const guesses = ['TARES'];
-  const all_results = (await gather_results(page)).map(r => [r]);
   while (true) {
     const first_board = all_results.reduce((best_board, board) => solvedAmount(board) > solvedAmount(best_board) && solvedAmount(board) !== 5 ? board : best_board);
 

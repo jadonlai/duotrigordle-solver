@@ -12,6 +12,7 @@ const PRACTICE_LINK_SELECTOR =
 const MAIN_SELECTOR = "._main_kv0wd_1";
 const BOARDS_SELECTOR = "div._board_1277w_1";
 const CELL_SELECTOR = "div._cell_1277w_56";
+const KEEP_PLAYING_SELECTOR = "#root > div > div._modalWrapper_y9oz3_1._lightweight_y9oz3_37 > div._modal_y9oz3_1 > div > button:nth-child(1)"
 const STARTER_WORDS = ["TARES"];
 
 async function gather_results(page: Page): Promise<string[]> {
@@ -78,18 +79,18 @@ function solvedAmount(board: string[]): number {
   swipl.call("['../entropy/entropy']");
 
   while (true) {
-    const first_board = all_results
+    page.click(KEEP_PLAYING_SELECTOR);
+
+    const most_solved_board = all_results
       .filter((board) => solvedAmount(board) !== 5)
       .reduce((best_board, board) =>
         solvedAmount(board) > solvedAmount(best_board) ? board : best_board,
       );
 
-    console.log(solvedAmount(first_board));
-
     const query = serialize(
       compound("max_entropies_given", [
         list(guesses),
-        list(first_board),
+        list(most_solved_board),
         variable("ME"),
       ]),
     );

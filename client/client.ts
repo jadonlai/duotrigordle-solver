@@ -14,17 +14,24 @@ const MAIN_SELECTOR = "._main_kv0wd_1";
 const BOARDS_SELECTOR = "div._board_1277w_1";
 const CELL_SELECTOR = "div._cell_1277w_56";
 
+const KEEP_PLAYING_SELECTOR = "#root > div > div._modalWrapper_y9oz3_1._lightweight_y9oz3_37 > div._modal_y9oz3_1 > div > button:nth-child(1)"
+const STARTER_WORDS = ["TARES"];
+
 async function gather_results(page: Page): Promise<string[]> {
   const boards = await page.$$(BOARDS_SELECTOR);
-  console.log("Number of boards found:", boards.length);
   const resultsPromises = boards.map(async (board) => {
+    const boardCls = await board.evaluate((el) => el.className);
+    if (boardCls.includes("dimmed")) {
+      return "fffff";
+    }
+
     const cells = await board.$$eval(CELL_SELECTOR, (els) =>
-      els.map((el) => el.className)
+      els.map((el) => el.className),
     );
     const result = cells.slice(-10, -5);
     return result
       .map((cls) =>
-        cls.includes("green") ? "f" : cls.includes("yellow") ? "p" : "i"
+        cls.includes("green") ? "f" : cls.includes("yellow") ? "p" : "i",
       )
       .join("");
   });
@@ -40,9 +47,6 @@ async function gather_results(page: Page): Promise<string[]> {
 
 function solvedAmount(board: string[]): number {
   const solve = board[board.length - 1];
-  if (solve === "fffff") {
-    return 5;
-  }
   return (
     (solve.match(/f/g) ?? []).length + 0.5 * (solve.match(/p/g) ?? []).length
   );
@@ -88,25 +92,24 @@ function isValidSolution(word, result) {
   await new Promise((resolve) => setTimeout(resolve, 150));
   await page.click(PRACTICE_LINK_SELECTOR);
 
-  await page.type(MAIN_SELECTOR, "TARES");
-  await page.keyboard.press("Enter");
-  // await page.type(MAIN_SELECTOR, "APTLY");
-  // await page.keyboard.press("Enter");
-  // await page.type(MAIN_SELECTOR, "ABENG");
-  // await page.keyboard.press("Enter");
-  // await page.type(MAIN_SELECTOR, "DRUMS");
-  // await page.keyboard.press("Enter");
-  // await page.type(MAIN_SELECTOR, "CHIKO");
-  // await page.keyboard.press("Enter");
-  // await page.type(MAIN_SELECTOR, "WAQFS");
-  // await page.keyboard.press("Enter");
+  const guesses: string[] = [];
+  const all_results: string[][] = Array(32)
+    .fill(null)
+    .map((_) => []);
+  for (const starter of STARTER_WORDS) {
+    await page.type(MAIN_SELECTOR, starter);
+    await page.keyboard.press("Enter");
+
+    guesses.push(starter);
+    const results = await gather_results(page);
+    all_results.forEach((acc, i) => acc.push(results[i]));
+  }
 
   swipl.call("['../entropy/entropy']");
 
-  const guesses = ["TARES"];
-  // const guesses = ["APTLY, ABENG, DRUMS, CHIKO, WAQFS"];
-  const all_results = (await gather_results(page)).map((r) => [r]);
   while (true) {
+    page.click(KEEP_PLAYING_SELECTOR);
+    
     const first_board = all_results.reduce((best_board, board) => {
       const solvedAmountBoard = solvedAmount(board);
       const possibleSolutionsBoard = possibleSolutions(
@@ -150,6 +153,8 @@ function isValidSolution(word, result) {
 
     await page.type(MAIN_SELECTOR, ret.ME);
     await page.keyboard.press("Enter");
+
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
     guesses.push(ret.ME);
 
